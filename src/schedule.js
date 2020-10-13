@@ -20,14 +20,15 @@ export function scheduleRoot(rootFiber) {
   nextUnitOfWork = rootFiber;
 }
 
+// 深度遍历转换成fiber节点，知道叶子节点
 function performUnitOfWork(currentFiber) {
   beginWork(currentFiber); // 开始工作
   if (currentFiber.child) {
     return currentFiber.child;
   }
-
+  // 此时currentFiber属于叶子节点没有child节点
   while (currentFiber) {
-    completeUnitOfWork(currentFiber); // 没有child和sibling时会调用此方法
+    completeUnitOfWork(currentFiber); // 没有child和sibling时会调用此方法（代表当前节点可以做完成操作）
     if (currentFiber.sibling) {
       return currentFiber.sibling;
     }
@@ -78,6 +79,12 @@ function beginWork(currentFiber) {
   }
 }
 
+/**
+ * 主要两件事：
+ * 1. 创建当前fiber对应DOM元素
+ * 2. 根据当前fiber的props的children(此时的children为react元素)创建fiber节点，并把当前fiber节点指向children元素的第一个react元素转换之后的fiber节点，children中的fiber节点使用sibling相连
+ * @param {object} currentFiber fiber元素 
+ */
 function updateHost(currentFiber) {
   if (!currentFiber.stateNode) {
     currentFiber.stateNode = createDOM(currentFiber);
