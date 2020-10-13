@@ -36,7 +36,14 @@ function performUnitOfWork(currentFiber) {
   }
 }
 
-// 完成时收集有副作用的fiber，然后组成effect list
+/**
+ * 完成时收集有副作用的fiber，然后组成effect list
+ * 这里的逻辑为:
+ * 1. 判断父fiber节点是否存在，存在则父fiber节点等于当前fiber节点的firstEffect指向fiber
+ * 2. 让父fiber节点等于当前fiber节点lastEffect指向的fiber节点
+ * 3. 让父fiber节点的lastEffect的fiber节点的nextEffect节点为当前fiber节点
+ * @param {object} currentFiber 当前fiber
+ */
 function completeUnitOfWork(currentFiber) {
   let returnFiber = currentFiber.return;
   if (returnFiber) {
@@ -165,6 +172,8 @@ function workLoop(deadline) {
 
 function commitRoot() {
   let currentFiber = workInProgressRoot.firstEffect;
+  console.log(workInProgressRoot);
+  debugger
   while (currentFiber) {
     commitWork(currentFiber);
     currentFiber = currentFiber.nextEffect;
