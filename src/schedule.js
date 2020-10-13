@@ -46,9 +46,8 @@ function completeUnitOfWork(currentFiber) {
     if (currentFiber.lastEffect) {
       if (returnFiber.lastEffect) {
         returnFiber.lastEffect.nextEffect = currentFiber.firstEffect;
-      } else {
-        returnFiber.lastEffect = currentFiber.lastEffect;
-      }
+      } 
+      returnFiber.lastEffect = currentFiber.lastEffect;
     }
     /*------------------------------------------------------------------------- */
     const effectTag = currentFiber.effectTag; // 副作用表示（增加、删除、插入）
