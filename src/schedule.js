@@ -46,7 +46,7 @@ function completeUnitOfWork(currentFiber) {
     if (currentFiber.lastEffect) {
       if (returnFiber.lastEffect) {
         returnFiber.lastEffect.nextEffect = currentFiber.firstEffect;
-      } 
+      }
       returnFiber.lastEffect = currentFiber.lastEffect;
     }
     /*------------------------------------------------------------------------- */
@@ -131,15 +131,13 @@ function reconcileChildren(currentFiber, newChildren) {
       effectTag: PLACEMENT, // 副作用标识（增加、删除、插入）
       nextEffect: null, // 值也是单链表
     };
-    if (newFiber) {
-      if (newChildIndex === 0) {
-        // 当前Fiber节点的child指向children Fiber的第一个
-        currentFiber.child = newFiber;
-      } else {
-        prevSibling.sibling = newFiber;
-      }
-      prevSibling = newFiber;
+    if (newChildIndex === 0) {
+      // 当前Fiber节点的child指向children Fiber的第一个
+      currentFiber.child = newFiber;
+    } else {
+      prevSibling.sibling = newFiber;
     }
+    prevSibling = newFiber;
     newChildIndex++;
   }
 }
