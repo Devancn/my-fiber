@@ -1,5 +1,5 @@
-import React from "react";
-import ReactDOM from "react-dom";
+import React from "./react";
+import ReactDOM from "./react-dom";
 
 class ClassCounter extends React.Component {
   constructor(props) {
@@ -19,4 +19,4 @@ class ClassCounter extends React.Component {
   }
 }
 
-ReactDOM.render(<ClassCounter />, document.getElementById("root"));
+ReactDOM.render(<ClassCounter name="计数器" />, document.getElementById("root"));
