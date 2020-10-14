@@ -165,18 +165,27 @@ function reconcileChildren(currentFiber, newChildren) {
     } else if (newChild && typeof newChild.type === "string") {
       tag = TAG_HOST;
     }
+    // 老fiber的type与新react元素的type一致
     if (sameType) {
-      // 老fiber的type与新react元素的type一致，则复用老的DOM节点，更新即可
-      newFiber = {
-        tag: oldFiber.tag, // 当前react元素对应的fiber类型
-        type: oldFiber.type, // react元素的type
-        props: newChild.props, // react元素的的props
-        stateNode: oldFiber.stateNode, // 真实DOM
-        alternate: oldFiber, // 新的fiber节点指向老的fiber节点
-        return: currentFiber, // 父fiber
-        effectTag: UPDATE, // 副作用标识（增加、删除、插入）
-        nextEffect: null, // 值也是单链表
-      };
+      // 复用fiber节点
+      if (oldFiber.alternate) {
+        newFiber = oldFiber.alternate; 
+        newFiber.props = newChild.props;
+        newFiber.alternate = oldFiber;
+        newFiber.effectTag = UPDATE;
+        newFiber.nextEffect = null;
+      } else {
+        newFiber = {
+          tag: oldFiber.tag, // 当前react元素对应的fiber类型
+          type: oldFiber.type, // react元素的type
+          props: newChild.props, // react元素的的props
+          stateNode: oldFiber.stateNode, // 真实DOM
+          alternate: oldFiber, // 新的fiber节点指向老的fiber节点
+          return: currentFiber, // 父fiber
+          effectTag: UPDATE, // 副作用标识（增加、删除、插入）
+          nextEffect: null, // 值也是单链表
+        };
+      }
     } else {
       if (newChild) {
         newFiber = {
