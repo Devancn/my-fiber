@@ -14,6 +14,7 @@ import {
   DELETION,
   UPDATE,
   TAG_CLASS,
+  TAG_FUNCTION_COMPONENT,
 } from "./constants";
 import { Update, UpdateQueue } from "./update-queue";
 import { setProps } from "./utils";
@@ -21,6 +22,9 @@ let nextUnitOfWork = null; // 下一个工作单元
 let workInProgressRoot = null; // 正在渲染的RootFiber应用的根节点
 let currentRoot = null; // 上一次的workInProgressRoot（有值代表页面已经渲染过）
 let deletions = []; // 记录需要删除的effect list
+
+let workInProgressFiber = null; // 正在工作中的fiber
+let hookIndex = 0; // hooks索引
 export function scheduleRoot(rootFiber) {
   // 此时页面已经更新渲染过一次
   if (currentRoot && currentRoot.alternate) {
@@ -52,7 +56,7 @@ export function scheduleRoot(rootFiber) {
   nextUnitOfWork = workInProgressRoot;
 }
 
-// 深度遍历转换成fiber节点，知道叶子节点
+// 深度遍历转换成fiber节点，直到叶子节点
 function performUnitOfWork(currentFiber) {
   beginWork(currentFiber); // 开始工作
   if (currentFiber.child) {
@@ -117,9 +121,18 @@ function beginWork(currentFiber) {
     updateHost(currentFiber);
   } else if (currentFiber.tag === TAG_CLASS) {
     updateClassComponent(currentFiber);
+  } else if (currentFiber.tag === TAG_FUNCTION_COMPONENT) {
+    updateFunctionComponent(currentFiber);
   }
 }
 
+function updateFunctionComponent(currentFiber) {
+  workInProgressFiber = currentFiber;
+  hookIndex = 0;
+  workInProgressFiber.hooks = [];
+  const newChildren = [currentFiber.type(currentFiber.props)];
+  reconcileChildren(currentFiber, newChildren);
+}
 function updateClassComponent(currentFiber) {
   // 第一次
   if (!currentFiber.stateNode) {
@@ -161,7 +174,9 @@ function createDOM(currentFiber) {
 }
 
 function updateDOM(stateNode, oldProps, newProps) {
-  setProps(stateNode, oldProps, newProps);
+  if (stateNode && stateNode.setAttribute) {
+    setProps(stateNode, oldProps, newProps);
+  }
 }
 
 function updateHostText(currentFiber) {
@@ -203,6 +218,8 @@ function reconcileChildren(currentFiber, newChildren) {
       newChild.type.prototype.isReactComponent
     ) {
       tag = TAG_CLASS;
+    } else if (newChild && typeof newChild.type === "function") {
+      tag = TAG_FUNCTION_COMPONENT;
     } else if (newChild && newChild.type === ELEMENT_TEXT) {
       tag = TAG_TEXT;
     } else if (newChild && typeof newChild.type === "string") {
@@ -342,4 +359,25 @@ function commitDeletion(currentFiber, DOMReturn) {
   }
 }
 
+export function useReducer(reducer, initialValue) {
+  let newHook =
+    workInProgressFiber.alternate &&
+    workInProgressFiber.alternate.hooks &&
+    workInProgressFiber.alternate.hooks[hookIndex];
+  if (newHook) {
+    newHook.state = newHook.updateQueue.forceUpdate(newHook.state);
+  } else {
+    newHook = {
+      state: initialValue,
+      updateQueue: new UpdateQueue(),
+    };
+  }
+  const dispatch = (action) => {
+    let payload = reducer ? reducer(newHook.state, action) : action;
+    newHook.updateQueue.enqueueUpdate(new Update(payload));
+    scheduleRoot();
+  };
+  workInProgressFiber.hooks[hookIndex] = newHook;
+  return [newHook.state, dispatch];
+}
 requestIdleCallback(workLoop, { timeout: 500 });

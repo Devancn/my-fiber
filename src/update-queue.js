@@ -19,18 +19,18 @@ export class UpdateQueue {
       this.lastUpdate = update;
     }
   }
-  forceUpdate(state) {
+  forceUpdate(currentState) {
     let currentUpdate = this.firstUpdate;
     while (currentUpdate) {
       let nextState =
         typeof currentUpdate.payload === "function"
-          ? currentUpdate.payload(state)
+          ? currentUpdate.payload(currentState)
           : currentUpdate.payload;
-      state = { ...state, ...nextState };
+      currentState = { ...currentState, ...nextState };
       currentUpdate = currentUpdate.nextUpdate;
     }
     this.firstUpdate = null;
     this.lastUpdate = null;
-    return state;
+    return currentState;
   }
 }
