@@ -31,11 +31,23 @@ function reducer(state, action) {
 }
 
 function FunctionCounter() {
-  const [countState, dispatch] = React.useReducer(reducer, { count: 0 });
+  const [numberState, setNumberState] = React.useState({ number: 0 });
+  // const [countState, dispatch] = React.useReducer(reducer, { count: 0 });
+  console.log(numberState.number, "render");
+  function click() {
+    console.log(numberState.number, "click");
+    setNumberState({ number: numberState.number + 1 });
+  }
   return (
-    <div id="counter">
-      <span>{countState.count}</span>
-      <button onClick={() => dispatch({ type: ADD })}>加1</button>
+    <div>
+      <div id="counter1">
+        <span>{numberState.number}</span>
+        <button onClick={click}>加1</button>
+      </div>
+      {/* <div id="counter2">
+        <span>{countState.count}</span>
+        <button onClick={() => dispatch({ type: ADD })}>加1</button>
+      </div> */}
     </div>
   );
 }

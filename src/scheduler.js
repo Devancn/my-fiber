@@ -290,7 +290,6 @@ function workLoop(deadline) {
     shouldYield = deadline.timeRemaining() < 1;
   }
   if (!nextUnitOfWork && workInProgressRoot) {
-    console.log("render阶段结束");
     commitRoot();
   }
   requestIdleCallback(workLoop, { timeout: 500 });
@@ -359,6 +358,10 @@ function commitDeletion(currentFiber, DOMReturn) {
   }
 }
 
+export function useState(initialValue) {
+  return useReducer(null, initialValue);
+}
+
 export function useReducer(reducer, initialValue) {
   let newHook =
     workInProgressFiber.alternate &&
@@ -377,7 +380,7 @@ export function useReducer(reducer, initialValue) {
     newHook.updateQueue.enqueueUpdate(new Update(payload));
     scheduleRoot();
   };
-  workInProgressFiber.hooks[hookIndex] = newHook;
+  workInProgressFiber.hooks[hookIndex++] = newHook;
   return [newHook.state, dispatch];
 }
 requestIdleCallback(workLoop, { timeout: 500 });

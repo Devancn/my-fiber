@@ -1,6 +1,6 @@
 import { ELEMENT_TEXT } from "./constants";
 import { Update, UpdateQueue } from "./update-queue";
-import { scheduleRoot, useReducer } from "./scheduler";
+import { scheduleRoot, useReducer, useState } from "./scheduler";
 
 function createElement(type, config, ...children) {
   delete config.__self;
@@ -36,4 +36,5 @@ export default {
   createElement,
   Component,
   useReducer,
+  useState,
 };
