@@ -338,13 +338,13 @@ function commitWork(currentFiber) {
       if (currentFiber.alternate.props.text !== currentFiber.props.text) {
         currentFiber.stateNode.textContent = currentFiber.props.text;
       }
+    } else {
+      updateDOM(
+        currentFiber.stateNode,
+        currentFiber.alternate.props,
+        currentFiber.props
+      );
     }
-  } else {
-    updateDOM(
-      currentFiber.stateNode,
-      currentFiber.alternate.props,
-      currentFiber.props
-    );
   }
   currentFiber.effectTag = null;
 }

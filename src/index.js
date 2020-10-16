@@ -33,9 +33,7 @@ function reducer(state, action) {
 function FunctionCounter() {
   const [numberState, setNumberState] = React.useState({ number: 0 });
   // const [countState, dispatch] = React.useReducer(reducer, { count: 0 });
-  console.log(numberState.number, "render");
   function click() {
-    console.log(numberState.number, "click");
     setNumberState({ number: numberState.number + 1 });
   }
   return (
